@@ -1,11 +1,10 @@
 [build]
-  command = "unzip -o coelecanth_repo.zip && cd coelecanth && npm ci && npm run build"
+  command = "apt-get update && apt-get install -y unzip && unzip -o coelecanth_repo.zip && cd $(ls -d coelecanth*/ | head -n 1) && npm ci && npm run build"
   publish = "coelecanth/dist"
 
 [build.environment]
   NODE_VERSION = "20"
 
-# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
