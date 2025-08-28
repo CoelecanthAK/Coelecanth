@@ -166,7 +166,7 @@ function ShareButton() {
   );
 }
 
-// <-- ShareButton is closed above. InstallButton must be top-level, not nested.
+// Install button must be TOP-LEVEL (not nested inside ShareButton)
 function InstallButton() {
   const [deferred, setDeferred] = React.useState(null);
   const [installed, setInstalled] = React.useState(false);
@@ -202,7 +202,7 @@ function InstallButton() {
       deferred.prompt();
       const choice = await deferred.userChoice;
       setDeferred(null);
-      // optional: handle choice.outcome === "accepted" | "dismissed"
+      // optional: inspect choice.outcome
     } else if (isIOS) {
       alert("On iPhone/iPad: tap the Share button, then 'Add to Home Screen' to install.");
     } else {
@@ -218,31 +218,6 @@ function InstallButton() {
       aria-label="Install this app"
     >
       Install
-    </button>
-  );
-}
-
-
-  return (
-    <button
-      onClick={handleInstall}
-      className="text-xs px-2 py-1 rounded-md border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 active:scale-[.99]"
-      title="Install app"
-      aria-label="Install this app"
-    >
-      Install
-    </button>
-  );
-}
-
-  return (
-    <button
-      onClick={share}
-      className="text-xs px-2 py-1 rounded-md border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 active:scale-[.99]"
-      title="Share"
-      aria-label="Share this app"
-    >
-      Share
     </button>
   );
 }
