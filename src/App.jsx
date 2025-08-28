@@ -136,6 +136,35 @@ function Button({ children, onClick, disabled, variant = "primary" }) {
     </button>
   );
 }
+function ShareButton() {
+  const url = window.location.origin;
+  const title = "Coelecanth – Seafaring RPG";
+  const text = "Install on your phone (Add to Home Screen) and play!";
+
+  const share = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Link copied! Share it anywhere.");
+      }
+    } catch {
+      // user canceled or share not available
+    }
+  };
+
+  return (
+    <button
+      onClick={share}
+      className="text-xs px-2 py-1 rounded-md border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 active:scale-[.99]"
+      title="Share"
+      aria-label="Share this app"
+    >
+      Share
+    </button>
+  );
+}
 
 // Simple Modal for help popups
 function Modal({ open, onClose, title, body }) {
@@ -159,9 +188,18 @@ function Header({ xp, level }) {
     <div className="flex items-center gap-3 p-3">
       <div className="text-3xl">⚓</div>
       <div className="flex-1">
-        <div className="text-xs uppercase tracking-widest text-sky-800/70">Coelecanth Campaign</div>
-        <div className="font-extrabold text-sky-900 text-xl">Captain’s Ledger</div>
-        <div className="text-sky-700 text-sm">Level {level.lvl} · {level.title}</div>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-sky-800/70">Coelecanth Campaign</div>
+            <div className="font-extrabold text-sky-900 text-xl">Captain’s Ledger</div>
+            <div className="text-sky-700 text-sm">Level {level.lvl} · {level.title}</div>
+          </div>
+          {/* ⬇⬇ Add Share button in the header ⬇⬇ */}
+          <div className="ml-3">
+            <ShareButton />
+          </div>
+          {/* ⬆⬆ */}
+        </div>
       </div>
       <div className="text-right">
         <div className="text-xs text-sky-700/80">XP</div>
@@ -170,6 +208,7 @@ function Header({ xp, level }) {
     </div>
   );
 }
+
 function XPBar({ xp }) {
   const pct = Math.min(100, Math.round(((xp % 1000) / 1000) * 100));
   return (
