@@ -153,6 +153,72 @@ function ShareButton() {
       // user canceled or share not available
     }
   };
+function InstallButton() {
+  const [deferred, setDeferred] = React.useState(null);
+  const [installed, setInstalled] = React.useState(false);
+  const [isIOS, setIsIOS] = React.useState(false);
+  const [isStandalone, setIsStandalone] = React.useState(false);
+
+  React.useEffect(() => {
+    // detect iOS and standalone mode
+    const ua = window.navigator.userAgent.toLowerCase();
+    setIsIOS(/iphone|ipad|ipod/.test(ua));
+    setIsStandalone(
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true
+    );
+
+    const onBeforeInstall = (e) => {
+      // prevent the mini-infobar & store the event
+      e.preventDefault();
+      setDeferred(e);
+    };
+    const onInstalled = () => setInstalled(true);
+
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  // Hide button if already installed or running standalone
+  if (installed || isStandalone) return null;
+
+  const handleInstall = async () => {
+    if (deferred) {
+      deferred.prompt();
+      const choice = await deferred.userChoice;
+      // Either way, clear the saved event so the browser can re-fire later if needed
+      setDeferred(null);
+      if (choice.outcome === "accepted") {
+        // optional: toast or log
+      } else {
+        // user dismissed; optional: toast
+      }
+    } else if (isIOS) {
+      // iOS fallback: show quick instructions
+      alert(
+        "On iPhone/iPad: tap the Share button, then 'Add to Home Screen' to install."
+      );
+    } else {
+      // Desktop browser that doesn't expose beforeinstallprompt
+      alert("If your browser supports it, look for an install icon in the address bar.");
+    }
+  };
+
+  return (
+    <button
+      onClick={handleInstall}
+      className="text-xs px-2 py-1 rounded-md border border-sky-200 text-sky-700 bg-white hover:bg-sky-50 active:scale-[.99]"
+      title="Install app"
+      aria-label="Install this app"
+    >
+      Install
+    </button>
+  );
+}
 
   return (
     <button
@@ -188,17 +254,16 @@ function Header({ xp, level }) {
     <div className="flex items-center gap-3 p-3">
       <div className="text-3xl">⚓</div>
       <div className="flex-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div>
             <div className="text-xs uppercase tracking-widest text-sky-800/70">Coelecanth Campaign</div>
             <div className="font-extrabold text-sky-900 text-xl">Captain’s Ledger</div>
             <div className="text-sky-700 text-sm">Level {level.lvl} · {level.title}</div>
           </div>
-          {/* ⬇⬇ Add Share button in the header ⬇⬇ */}
-          <div className="ml-3">
+          <div className="ml-3 flex items-center gap-2">
             <ShareButton />
+            <InstallButton />
           </div>
-          {/* ⬆⬆ */}
         </div>
       </div>
       <div className="text-right">
@@ -208,6 +273,7 @@ function Header({ xp, level }) {
     </div>
   );
 }
+
 
 function XPBar({ xp }) {
   const pct = Math.min(100, Math.round(((xp % 1000) / 1000) * 100));
